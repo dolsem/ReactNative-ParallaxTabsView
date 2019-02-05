@@ -5,12 +5,12 @@
   "main": "lib/index.js",
   "dependencies": {
     "decko": "^1.2.0",
-    "react-native-linear-gradient": "^2.5.3",
     "react-props-decorators": "^0.2.0"
   },
   "peerDependencies": {
-    "native-base": "^2.8.0",
+    "expo": "^32.0.0",
     "react": ">=16.4.1",
-    "react-native": ">=0.56.0"
+    "react-native": ">=0.56.0",
+    "native-base": "^2.8.0"
   }
 }
