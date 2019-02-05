@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StatusBar, NativeModules, StyleSheet, Platform } from 'react-native';
 import { Root } from 'native-base';
+import ParallaxTabsView from 'react-native-parallax-tabs-view';
 import { bind } from 'decko';
 
 import { Colors, HEADER_IMAGE } from './constants';
 
-import ParallaxTabsView from '../lib';
 import HeaderTop from './components/HeaderTop';
 import SubHeader from './components/SubHeader';
 
