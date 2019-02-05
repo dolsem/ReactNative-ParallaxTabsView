@@ -1,0 +1,76 @@
+{
+  "plugins": [
+    "react",
+    "react-native",
+    "jest"
+  ],
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "react-native/react-native": true
+  },
+  "globals": {
+    "__CONFIG__": true,
+    "__ENV__": true
+  },
+  "extends": [
+    "airbnb",
+    "plugin:jest/recommended"
+  ],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true,
+      "jsx": true,
+      "legacyDecorators": true
+    }
+  },
+  "rules": {
+    "no-alert": 0,
+    "new-cap": 0,
+    "semi": 0,
+    "global-require": 0,
+    "no-underscore-dangle": 0,
+    "arrow-body-style": 0,
+    "no-console": 0,
+    "comma-dangle": [2, "always-multiline"],
+    "object-curly-newline": [ "error", { "consistent": true  }],
+    "no-shadow": 0,
+    "no-use-before-define": ["error", { "variables": false }],
+    "operator-linebreak": [
+      "error",
+      "after",
+      {
+        "overrides": { 
+          "?": "before",
+          ":": "before",
+          "=": "after",
+          "&&": "before",
+          "||": "before"
+        }
+      }
+    ],
+    "no-cond-assign": ["error", "except-parens"],
+    "import/prefer-default-export": 0,
+    "import/no-unresolved": 0,
+    "import/no-cycle": ["error"],
+    "react/prop-types": 0,
+    "react/forbid-prop-types": 0,
+    "react/jsx-filename-extension": 0,
+    "react/destructuring-assignment": ["error", "always"],
+    "jsx-a11y/href-no-hash": 0,
+    "jsx-a11y/anchor-is-valid": [ "error", {
+        "components": [ "Link" ],
+        "specialLink": [ "to", "hrefLeft", "hrefRight" ],
+        "aspects": [ "noHref", "invalidHref", "preferButton" ]
+      }],
+    "react-native/no-unused-styles": 2,
+    "react-native/split-platform-components": 2,
+    "react-native/no-inline-styles": 2,
+    "react-native/no-color-literals": 2
+  },
+  "settings": {
+    "import/resolver": "babel-module"
+  }
+}

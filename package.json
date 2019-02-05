@@ -1,0 +1,16 @@
+{
+  "name": "react-native-parallax-tabs-view",
+  "description": "Screen view with tabs and a parallax image header that collapses to a bar as you scroll down",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "dependencies": {
+    "decko": "^1.2.0",
+    "react-native-linear-gradient": "^2.5.3",
+    "react-props-decorators": "^0.2.0"
+  },
+  "peerDependencies": {
+    "native-base": "^2.8.0",
+    "react": ">=16.4.1",
+    "react-native": ">=0.56.0"
+  }
+}
