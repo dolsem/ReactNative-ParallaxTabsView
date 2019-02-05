@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StatusBar, NativeModules, StyleSheet, Platform } from 'react-native';
+import { LinearGradient } from 'expo';
 import { Root } from 'native-base';
 import ParallaxTabsView from 'react-native-parallax-tabs-view';
 import { bind } from 'decko';
@@ -41,6 +42,13 @@ export default class ParallaxTabsViewDemo extends React.Component {
             props => <ExtraTab {...props} />,
           ]}
           HeaderTop={HeaderTop}
+          HeaderBody={() => (
+            <LinearGradient
+              colors={Colors.GRADIENT}
+              locations={[0, 0.25, 1]}
+              style={styles.gradient}
+            />
+          )}
           HeaderBottom={() => <Text style={styles.username}>Revaz Gabriadze</Text>}
           Subheader={props => <SubHeader {...props} />}
           onScrollPastThreshold={this.onScrollPastThreshold}
@@ -61,5 +69,10 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     paddingLeft: 10,
     paddingRight: 10,
+  },
+  gradient: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
   },
 });
