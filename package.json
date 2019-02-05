@@ -1,7 +1,7 @@
 {
   "name": "react-native-parallax-tabs-view",
   "description": "Screen view with tabs and a parallax image header that collapses to a bar as you scroll down",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "lib/index.js",
   "dependencies": {
     "decko": "^1.2.0",
