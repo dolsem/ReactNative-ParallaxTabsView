@@ -34,7 +34,7 @@ export default () => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    backgroundColor: 'silver',
+    backgroundColor: Colors.SILVER,
     justifyContent: 'space-around',
     alignItems: 'center',
   },

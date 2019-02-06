@@ -7,12 +7,7 @@ import { bind } from 'decko';
 
 import { Colors, HEADER_IMAGE } from './constants';
 
-import HeaderTop from './components/HeaderTop';
-import SubHeader from './components/SubHeader';
-
-import PostersTab from './components/PostersTab';
-import CharactersTab from './components/CharactersTab';
-import ExtraTab from './components/ExtraTab';
+import { PostersTab, CharactersTab, ExtraTab, HeaderTop, Subheader } from './components';
 
 const { StatusBarManager } = NativeModules;
 
@@ -50,7 +45,7 @@ export default class ParallaxTabsViewDemo extends React.Component {
             />
           )}
           HeaderBottom={() => <Text style={styles.username}>Revaz Gabriadze</Text>}
-          Subheader={props => <SubHeader {...props} />}
+          Subheader={Subheader}
           onScrollPastThreshold={this.onScrollPastThreshold}
         />
       </Root>

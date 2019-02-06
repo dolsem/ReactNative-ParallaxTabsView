@@ -1,7 +1,6 @@
 import React from 'react';
 import { Animated, View, Image, ImageBackground, StyleSheet } from 'react-native';
 import { Header, Body, Tabs, Tab } from 'native-base';
-import PropTypes from 'prop-types';
 import { propTypes, defaultProps } from 'react-props-decorators';
 import { bind } from 'decko';
 
@@ -11,7 +10,7 @@ import {
   SCROLL_HEIGHT, SCREEN_HEIGHT, SCREEN_WIDTH,
 } from '../constants';
 
-import { debounce, withAlpha } from '../utils';
+import { debounce, withAlpha, PropTypes } from '../utils';
 import TabBar from './TabBar';
 
 const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
@@ -26,9 +25,9 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   /** Array of components to be rendered inside of each tab. */
   Tabs: PropTypes.arrayOf(PropTypes.element).isRequired,
   /** Component to be rendered inside of the header bar (top of the header). */
-  HeaderTop: PropTypes.node.isRequired,
+  HeaderTop: PropTypes.component.isRequired,
   /** Optional component to be rendered on top of the header image. */
-  HeaderBody: PropTypes.node,
+  HeaderBody: PropTypes.component,
   /** Optional component to be rendered at the bottom of the header
    *  that moves to header bar as you scroll down. */
   HeaderBottom: PropTypes.node,
