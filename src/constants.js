@@ -6,10 +6,9 @@ export const DEFAULT_HEADER_HEIGHT = Platform.OS === 'ios' ? 64 : 50;
 export const Colors = {
   WHITE: 'white',
   TRANSPARENT: 'transparent',
-
   THEME_COLOR: 'rgba(85,186,255, 1)',
-  FADED_THEME_COLOR: 'rgba(85,186,255, 0.8)',
 }
+export const THEME_COLOR_OPACITY = '0.8';
 
 export const DEFAULT_TAB_HEIGHT = 500;
 export const IMAGE_HEIGHT = 250;

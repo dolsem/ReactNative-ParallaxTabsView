@@ -1,16 +1,17 @@
 import React from 'react';
-import { Animated, View, ImageBackground, StyleSheet } from 'react-native';
+import { Animated, View, Image, ImageBackground, StyleSheet } from 'react-native';
 import { Header, Body, Tabs, Tab } from 'native-base';
-import { bind } from 'decko';
+import PropTypes from 'prop-types';
 import { propTypes, defaultProps } from 'react-props-decorators';
+import { bind } from 'decko';
 
 import {
-  Colors,
+  Colors, THEME_COLOR_OPACITY,
   DEFAULT_TAB_HEIGHT, IMAGE_HEIGHT, DEFAULT_HEADER_HEIGHT, HEADER_BOTTOM_HEIGHT,
   SCROLL_HEIGHT, SCREEN_HEIGHT, SCREEN_WIDTH,
 } from '../constants';
 
-import { debounce } from '../utils';
+import { debounce, withAlpha } from '../utils';
 import TabBar from './TabBar';
 
 const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
@@ -20,22 +21,42 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
  * Designed to work with scrollviews inside tabs.
  *
  * @name ParallaxTabsView
- *
+ */
 @propTypes({
-  /** The full height of the header. *
-  headerHeight: PropTypes.number.isRequired,
-  /** The height of the header in the collapsed state (when the page is scrolled down). *
-  collapsedHeight: PropTypes.number.isRequired,
-  /** The height of the header section that remains visible in collapsed state. *
-  barHeight: PropTypes.number.isRequired,
-  /** Offset of that header section from the top (in the full height state).  *
-  barOffset: PropTypes.number,
+  /** Array of components to be rendered inside of each tab. */
+  Tabs: PropTypes.arrayOf(PropTypes.element).isRequired,
+  /** Component to be rendered inside of the header bar (top of the header). */
+  HeaderTop: PropTypes.node.isRequired,
+  /** Optional component to be rendered on top of the header image. */
+  HeaderBody: PropTypes.node,
+  /** Optional component to be rendered at the bottom of the header
+   *  that moves to header bar as you scroll down. */
+  HeaderBottom: PropTypes.node,
+  /** Optional component to be rendered below the header
+   *  that disappears as you scroll down. */
+  Subheader: PropTypes.node,
+
+  /** Source prop for the header image */
+  headerImage: Image.propTypes.source,
+  /** Custom tab headings */
+  tabHeadings: PropTypes.arrayOf(PropTypes.string),
+
+  /** Custom header height */
+  headerHeight: PropTypes.number,
+
+  /** Function to be called after scrolling past scrollThreshold */
+  onScrollPastThreshold: PropTypes.func,
+  /** Threshold value scrolling past which will call onScrollPastThreshold() */
+  scrollThreshold: PropTypes.number,
+  /** Custom interval duration for calling onScrollPastThreshold() */
+  scrollPastThresholdEventInterval: PropTypes.number,
 })
 @defaultProps({
-  barOffset: 0,
-  AnimatedScrollable: Animated.ScrollView,
+  tabHeadings: [],
+  headerHeight: DEFAULT_HEADER_HEIGHT,
+  scrollThreshold: 0.5,
+  scrollPastThresholdEventInterval: 1500,
 })
-*/
 export default class ParallaxTabsView extends React.Component {
   state = {
     activeTab: 0,
@@ -57,7 +78,7 @@ export default class ParallaxTabsView extends React.Component {
 
   textColor = this.scroll.interpolate({
     inputRange: [0, SCROLL_HEIGHT / 5, SCROLL_HEIGHT],
-    outputRange: [Colors.THEME_COLOR, Colors.FADED_THEME_COLOR, Colors.WHITE],
+    outputRange: [Colors.THEME_COLOR, withAlpha(Colors.THEME_COLOR, THEME_COLOR_OPACITY), Colors.WHITE],
     extrapolate: 'clamp',
   });
 
@@ -86,17 +107,13 @@ export default class ParallaxTabsView extends React.Component {
 
   constructor(props) {
     super(props);
-    const {
-      Tabs,
-      ScrollPastThresholdEventInterval = 2000,
-      scrollThreshold = 0.5,
-    } = this.props;
+    const { Tabs, scrollPastThresholdEventInterval, scrollThreshold } = this.props;
 
     this.heights = Tabs.map(() => DEFAULT_TAB_HEIGHT);
 
     this.triggerScrolledPastThreshold = debounce(
       this.triggerScrolledPastThreshold,
-      ScrollPastThresholdEventInterval
+      scrollPastThresholdEventInterval
     );
 
     this.nScroll.addListener(
@@ -174,16 +191,16 @@ export default class ParallaxTabsView extends React.Component {
   }
 
   renderHeaderBottom() {
-    const { HeaderBottom } = this.props;
+    const { HeaderBottom, headerHeight } = this.props;
     if (!HeaderBottom) return null;
 
     const containerScale = this.nScroll.interpolate({
-      inputRange: [DEFAULT_HEADER_HEIGHT + 50, IMAGE_HEIGHT - 75],
+      inputRange: [headerHeight + 50, IMAGE_HEIGHT - 75],
       outputRange: [1, 0.7],
       extrapolate: 'clamp',
     });
     const translateX = this.nScroll.interpolate({
-      inputRange: [DEFAULT_HEADER_HEIGHT + 50, IMAGE_HEIGHT - 70],
+      inputRange: [headerHeight + 50, IMAGE_HEIGHT - 70],
       outputRange: [0, (SCREEN_WIDTH - 250) / 2],
       extrapolate: 'clamp',
     });
@@ -208,16 +225,16 @@ export default class ParallaxTabsView extends React.Component {
   }
 
   renderSubheader() {
-    const { Subheader } = this.props;
+    const { Subheader, headerHeight } = this.props;
     if (!Subheader) return null;
 
     const containerTranslate = this.nScroll.interpolate({
-      inputRange: [-DEFAULT_TAB_HEIGHT, IMAGE_HEIGHT + DEFAULT_HEADER_HEIGHT + HEADER_BOTTOM_HEIGHT],
-      outputRange: [DEFAULT_TAB_HEIGHT, -HEADER_BOTTOM_HEIGHT - IMAGE_HEIGHT - DEFAULT_HEADER_HEIGHT],
+      inputRange: [-DEFAULT_TAB_HEIGHT, IMAGE_HEIGHT + headerHeight + HEADER_BOTTOM_HEIGHT],
+      outputRange: [DEFAULT_TAB_HEIGHT, -HEADER_BOTTOM_HEIGHT - IMAGE_HEIGHT - headerHeight],
       extrapolate: 'clamp',
     });
     const containerOpacity = this.nScroll.interpolate({
-      inputRange: [0, DEFAULT_HEADER_HEIGHT + HEADER_BOTTOM_HEIGHT],
+      inputRange: [0, headerHeight + HEADER_BOTTOM_HEIGHT],
       outputRange: [1, 0],
       extrapolate: 'clamp',
     });
@@ -228,7 +245,7 @@ export default class ParallaxTabsView extends React.Component {
       width: '100%',
       justifyContent: 'space-around',
       alignItems: 'center',
-      top: IMAGE_HEIGHT + DEFAULT_HEADER_HEIGHT - 15,
+      top: IMAGE_HEIGHT + headerHeight - 15,
       height: HEADER_BOTTOM_HEIGHT,
       transform: [{ translateY: containerTranslate }],
       opacity: containerOpacity,
@@ -257,7 +274,7 @@ export default class ParallaxTabsView extends React.Component {
         )}
       >
         {UserTabs.map((UserTab, i) => {
-          const heading = (tabHeadings && tabHeadings[i]) || `Tab ${i + 1}`;
+          const heading = tabHeadings[i] || `Tab ${i + 1}`;
           return (
             <Tab key={heading} heading={heading}>
               <View style={{ height }}>
