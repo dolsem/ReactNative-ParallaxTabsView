@@ -18,7 +18,7 @@ function isComponent(...args) {
   let propName;
   let propValue;
   let componentName;
-  console.log('args count', args.length)
+  console.log(`${args[2]} args count`, args.length)
   if (args.length === 3) {
     let props;
     [props, propName, componentName] = args;
