@@ -23,17 +23,17 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
  */
 @propTypes({
   /** Array of components to be rendered inside of each tab. */
-  Tabs: PropTypes.arrayOf(PropTypes.element).isRequired,
+  Tabs: PropTypes.arrayOf(PropTypes.component).isRequired,
   /** Component to be rendered inside of the header bar (top of the header). */
   HeaderTop: PropTypes.component.isRequired,
   /** Optional component to be rendered on top of the header image. */
   HeaderBody: PropTypes.component,
   /** Optional component to be rendered at the bottom of the header
    *  that moves to header bar as you scroll down. */
-  HeaderBottom: PropTypes.node,
+  HeaderBottom: PropTypes.component,
   /** Optional component to be rendered below the header
    *  that disappears as you scroll down. */
-  Subheader: PropTypes.node,
+  Subheader: PropTypes.component,
 
   /** Source prop for the header image */
   headerImage: Image.propTypes.source,
@@ -50,8 +50,8 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   /** Custom interval duration for calling onScrollPastThreshold() */
   scrollPastThresholdEventInterval: PropTypes.number,
 
-  misc1: PropTypes.component,
-  misc2: PropTypes.component.isRequired,
+  misc1: PropTypes.arrayOf(PropTypes.component),
+  misc2: PropTypes.arrayOf(PropTypes.component).isRequired,
 })
 @defaultProps({
   tabHeadings: [],

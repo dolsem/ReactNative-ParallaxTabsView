@@ -14,12 +14,26 @@ PropTypes.checkPropTypes = (...args) => {
   Object.assign(console, { error });
 }; */
 
-function isComponent(props, propName, componentName) {
-  if (!props[propName]) {
+function isComponent(...args) {
+  let propName;
+  let propValue;
+  let componentName;
+  if (args.length === 3) {
+    let props;
+    [props, propName, componentName] = args;
+    propValue = props[propName];
+  } else if (args.length === 5) {
+    let key;
+    [propValue, key, componentName,, propName] = args;
+    propValue = propValue[key];
+    propName = `${propName}[${key}]`;
+  }
+
+  if (!propValue) {
     if (this.isRequired) {
       return new Error(`\`${componentName}\` missing required prop \`${propName}\``);
     }
-  } else if (!isValidElementType(props[propName])) {
+  } else if (!isValidElementType(propValue)) {
     return new Error(
       `Invalid prop \`${propName}\` supplied to \`${componentName}\`, expected a React component.`
     );
