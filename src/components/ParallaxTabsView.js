@@ -6,7 +6,7 @@ import { bind } from 'decko';
 
 import {
   Colors, THEME_COLOR_OPACITY,
-  DEFAULT_TAB_HEIGHT, IMAGE_HEIGHT, DEFAULT_HEADER_HEIGHT,
+  DEFAULT_TAB_HEIGHT, DEFAULT_IMAGE_HEIGHT, DEFAULT_HEADER_HEIGHT,
   SCREEN_HEIGHT, SCREEN_WIDTH,
 } from '../constants';
 
@@ -52,6 +52,8 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   headerHeight: PropTypes.number,
   /** Subheader height (required for subheader to be displayed) */
   subheaderHeight: PropTypes.number,
+  /** Custom image height */
+  imageHeight: PropTypes.number,
   /** Custom tab bar height */
   tabBarHeight: PropTypes.number,
   /** Custom HeaderBottom width */
@@ -70,6 +72,7 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   tabHeadings: [],
   headerHeight: DEFAULT_HEADER_HEIGHT,
   subheaderHeight: 0,
+  imageHeight: DEFAULT_IMAGE_HEIGHT,
   tabBarHeight: 100,
   headerBottomWidth: SCREEN_WIDTH,
   headerBottomDownscaleFactor: 1,
@@ -101,8 +104,15 @@ export default class ParallaxTabsView extends React.Component {
 
   constructor(props) {
     super(props);
-    const { Tabs, scrollPastThresholdEventInterval, scrollThreshold } = this.props;
+    const {
+      Tabs,
+      headerHeight,
+      imageHeight,
+      scrollPastThresholdEventInterval,
+      scrollThreshold,
+    } = this.props;
 
+    const scrollHeight = imageHeight - headerHeight;
     this.heights = Tabs.map(() => DEFAULT_TAB_HEIGHT);
 
     this.triggerScrolledPastThreshold = debounce(
@@ -124,7 +134,6 @@ export default class ParallaxTabsView extends React.Component {
       )
     );
 
-    const scrollHeight = IMAGE_HEIGHT - DEFAULT_HEADER_HEIGHT;
     this.textColor = this.scroll.interpolate({
       inputRange: [0, scrollHeight / 5, scrollHeight],
       outputRange: [
@@ -190,7 +199,7 @@ export default class ParallaxTabsView extends React.Component {
   }
 
   renderHeaderBody() {
-    const { headerImage, HeaderBody } = this.props;
+    const { headerImage, imageHeight: height, HeaderBody } = this.props;
     return (
       <Animated.View style={{
         transform: [
@@ -202,7 +211,7 @@ export default class ParallaxTabsView extends React.Component {
       >
         <AnimatedImage
           source={headerImage}
-          style={[styles.image, { opacity: this.imgOpacity }]}
+          style={[styles.image, { height, opacity: this.imgOpacity }]}
         >
           {HeaderBody && <HeaderBody />}
         </AnimatedImage>
@@ -212,12 +221,12 @@ export default class ParallaxTabsView extends React.Component {
 
   renderHeaderBottom() {
     const {
-      HeaderBottom, headerHeight, tabBarHeight, headerBottomWidth: width,
+      HeaderBottom, headerHeight, imageHeight, tabBarHeight, headerBottomWidth: width,
       headerBottomDownscaleFactor,
     } = this.props;
     if (!HeaderBottom) return null;
 
-    const top = IMAGE_HEIGHT - (tabBarHeight / 2);
+    const top = imageHeight - (tabBarHeight / 2);
 
     const containerScale = headerBottomDownscaleFactor < 1 && this.nScroll.interpolate({
       inputRange: [headerHeight, top - 25],
@@ -252,7 +261,7 @@ export default class ParallaxTabsView extends React.Component {
   }
 
   renderSubheader() {
-    const { Subheader, headerHeight, subheaderHeight } = this.props;
+    const { Subheader, headerHeight, imageHeight, subheaderHeight } = this.props;
     if (!Subheader) return null;
 
     const containerOpacity = this.nScroll.interpolate({
@@ -262,7 +271,7 @@ export default class ParallaxTabsView extends React.Component {
     });
 
     const style = {
-      top: IMAGE_HEIGHT + headerHeight - 15,
+      top: imageHeight + headerHeight - 15,
       opacity: containerOpacity,
     }
 
@@ -274,13 +283,16 @@ export default class ParallaxTabsView extends React.Component {
   }
 
   renderTabs() {
-    const { Tabs: UserTabs, Subheader, tabHeadings, tabBarHeight, subheaderHeight } = this.props;
+    const {
+      tabHeadings, headerHeight, imageHeight, tabBarHeight, subheaderHeight,
+      Tabs: UserTabs, Subheader,
+    } = this.props;
     const { height } = this.state;
 
-    const scrollHeight = IMAGE_HEIGHT - DEFAULT_HEADER_HEIGHT;
+    const scrollHeight = imageHeight - headerHeight;
     const tabY = this.nScroll.interpolate({
-      inputRange: [0, scrollHeight, height],
-      outputRange: [3, 3, height - scrollHeight + 3],
+      inputRange: [0, scrollHeight, height + scrollHeight],
+      outputRange: [3, 3, height + 3],
     });
     return (
       <Tabs
@@ -355,7 +367,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   image: {
-    height: IMAGE_HEIGHT,
     width: '100%',
   },
 });

@@ -46,6 +46,7 @@ export default class ParallaxTabsViewDemo extends React.Component {
           )}
           HeaderBottom={() => <Text style={styles.username}>Revaz Gabriadze</Text>}
           Subheader={Subheader}
+          imageHeight={300}
           subheaderHeight={SUBHEADER_HEIGHT}
           headerBottomWidth={250}
           headerBottomDownscaleFactor={0.65}
