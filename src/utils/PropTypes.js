@@ -18,12 +18,11 @@ function isComponent(...args) {
   let propName;
   let propValue;
   let componentName;
-  console.log(`${args[1]} propName`, args[4])
-  if (args.length === 3) {
+  if (args[4] === null) {
     let props;
     [props, propName, componentName] = args;
     propValue = props[propName];
-  } else if (args.length === 5) {
+  } else { // Used inside arrayOf
     let key;
     [propValue, key, componentName,, propName] = args;
     propValue = propValue[key];
