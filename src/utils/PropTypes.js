@@ -25,8 +25,9 @@ function isComponent(props, propName, componentName) {
     );
   }
 }
-export const component = Object.assign(isComponent, {
+const component = Object.assign(isComponent, {
   isRequired: (...args) => isComponent.apply({ isRequired: true }, args),
 });
+Object.assign(PropTypes, { component });
 
 export default PropTypes;
