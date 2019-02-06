@@ -240,19 +240,12 @@ export default class ParallaxTabsView extends React.Component {
     });
 
     const style = {
-      backgroundColor: 'silver',
-      position: 'absolute',
-      width: '100%',
-      justifyContent: 'space-around',
-      alignItems: 'center',
-      top: IMAGE_HEIGHT + headerHeight - 15,
-      height: HEADER_BOTTOM_HEIGHT,
       transform: [{ translateY: containerTranslate }],
       opacity: containerOpacity,
     }
 
     return (
-      <Animated.View style={style}>
+      <Animated.View style={[styles.subheader, style]}>
         <Subheader />
       </Animated.View>
     );
@@ -327,6 +320,12 @@ const styles = StyleSheet.create({
     zIndex: 2,
     top: IMAGE_HEIGHT - 50,
     width: 250,
+  },
+  subheader: {
+    position: 'absolute',
+    width: '100%',
+    top: IMAGE_HEIGHT + headerHeight - 15,
+    height: HEADER_BOTTOM_HEIGHT,
   },
   image: {
     height: IMAGE_HEIGHT,

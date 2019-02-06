@@ -7,7 +7,7 @@ import { Colors } from '../constants';
 
 export default () => {
   return (
-    <View>
+    <View style={styles.container}>
       <View style={styles.firstRowContainer}>
         <Text style={styles.firstRowText}>
           Following: 16
@@ -32,6 +32,12 @@ export default () => {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    backgroundColor: 'silver',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
   firstRowContainer: {
     width: '100%',
     height: 60,

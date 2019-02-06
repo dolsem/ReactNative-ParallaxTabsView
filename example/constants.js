@@ -10,6 +10,7 @@ export const Colors = {
   FADED_THEME_COLOR: 'rgba(85,186,255, 0.8)',
   WHITE: 'white',
   BLUE: 'blue',
+  SILVER: 'silver',
   GRADIENT: ['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.35)', 'rgba(255,255,255,0)'],
   POSTER_BG: 'rgb(211,211,211)',
 }
