@@ -8,7 +8,7 @@ export const Colors = {
   TRANSPARENT: 'transparent',
   THEME_COLOR: 'rgba(85,186,255, 1)',
 }
-export const THEME_COLOR_OPACITY = '0.8';
+export const THEME_COLOR_OPACITY = 0.8;
 
 export const DEFAULT_TAB_HEIGHT = 500;
 export const IMAGE_HEIGHT = 250;

@@ -49,8 +49,6 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   scrollThreshold: PropTypes.number,
   /** Custom interval duration for calling onScrollPastThreshold() */
   scrollPastThresholdEventInterval: PropTypes.number,
-
-  misc1: PropTypes.arrayOf(PropTypes.component),
 })
 @defaultProps({
   tabHeadings: [],
