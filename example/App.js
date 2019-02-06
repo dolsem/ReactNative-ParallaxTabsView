@@ -47,7 +47,7 @@ export default class ParallaxTabsViewDemo extends React.Component {
           HeaderBottom={() => <Text style={styles.username}>Revaz Gabriadze</Text>}
           Subheader={Subheader}
           onScrollPastThreshold={this.onScrollPastThreshold}
-          misc1={[]}
+          misc1={[4]}
         />
       </Root>
     )

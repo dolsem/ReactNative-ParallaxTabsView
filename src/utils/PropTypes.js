@@ -26,7 +26,6 @@ function isComponent(...args) {
     let key;
     [propValue, key, componentName,, propName] = args;
     propValue = propValue[key];
-    propName = `${propName}[${key}]`;
   }
 
   if (!propValue) {
