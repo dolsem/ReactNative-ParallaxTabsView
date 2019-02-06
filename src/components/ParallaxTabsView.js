@@ -242,6 +242,7 @@ export default class ParallaxTabsView extends React.Component {
     });
 
     const style = {
+      top: IMAGE_HEIGHT + headerHeight - 15,
       transform: [{ translateY: containerTranslate }],
       opacity: containerOpacity,
     }
@@ -326,7 +327,6 @@ const styles = StyleSheet.create({
   subheader: {
     position: 'absolute',
     width: '100%',
-    top: IMAGE_HEIGHT + headerHeight - 15,
     height: HEADER_BOTTOM_HEIGHT,
   },
   image: {
