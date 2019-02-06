@@ -1,6 +1,7 @@
 import { Dimensions } from 'react-native';
 
 export const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+export const SUBHEADER_HEIGHT = 130;
 export const ELEVATION = 24;
 export const POSTER_HEIGHT = 370;
 export const ICON_SIZE = 40;

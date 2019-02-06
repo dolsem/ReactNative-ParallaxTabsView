@@ -5,7 +5,7 @@ import { Root } from 'native-base';
 import ParallaxTabsView from 'react-native-parallax-tabs-view';
 import { bind } from 'decko';
 
-import { Colors, HEADER_IMAGE } from './constants';
+import { Colors, HEADER_IMAGE, SUBHEADER_HEIGHT } from './constants';
 
 import { PostersTab, CharactersTab, ExtraTab, HeaderTop, Subheader } from './components';
 
@@ -16,7 +16,6 @@ export default class ParallaxTabsViewDemo extends React.Component {
 
   @bind
   onScrollPastThreshold(tabIndex) {
-    return;
     if (tabIndex === 0) {
       this.postersTabRef.current.loadMoreData();
     }
@@ -33,7 +32,7 @@ export default class ParallaxTabsViewDemo extends React.Component {
           headerImage={HEADER_IMAGE}
           tabHeadings={['Posters', 'Characters', 'Extra']}
           Tabs={[
-            // props => <PostersTab ref={this.postersTabRef} {...props} />,
+            props => <PostersTab ref={this.postersTabRef} {...props} />,
             props => <CharactersTab {...props} />,
             props => <ExtraTab {...props} />,
           ]}
@@ -47,6 +46,9 @@ export default class ParallaxTabsViewDemo extends React.Component {
           )}
           HeaderBottom={() => <Text style={styles.username}>Revaz Gabriadze</Text>}
           Subheader={Subheader}
+          subheaderHeight={SUBHEADER_HEIGHT}
+          headerBottomWidth={250}
+          headerBottomDownscaleFactor={0.65}
           onScrollPastThreshold={this.onScrollPastThreshold}
         />
       </Root>
