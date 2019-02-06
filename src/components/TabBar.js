@@ -8,7 +8,7 @@ YellowBox.ignoreWarnings([
   'Warning: Failed prop type: Invalid prop `backgroundColor` supplied to `ScrollableTabBar`: [object Object]',
 ]);
 
-export default ({ tabY, tabBg, textColor, ...props }) => (
+export default ({ size, tabY, tabBg, textColor, ...props }) => (
   <Animated.View style={[styles.container, { transform: [{ translateY: tabY }] }]}>
     <ScrollableTab
       renderTab={(name, page, active, onPress, onLayout) => (
@@ -19,7 +19,11 @@ export default ({ tabY, tabBg, textColor, ...props }) => (
           activeOpacity={0.4}
         >
           <Animated.View style={[styles.headingContainer, { backgroundColor: tabBg }]}>
-            <TabHeading scrollable style={styles.heading} active={active}>
+            <TabHeading
+              scrollable
+              style={[styles.heading, { minWidth: SCREEN_WIDTH / size }]}
+              active={active}
+            >
               <Animated.Text style={[
                 active ? styles.headingTextActive : styles.headingText,
                 { color: textColor },
@@ -51,7 +55,6 @@ const styles = StyleSheet.create({
   },
   heading: {
     flex: 1,
-    minWidth: SCREEN_WIDTH / 3,
     backgroundColor: Colors.TRANSPARENT,
   },
   headingText: {

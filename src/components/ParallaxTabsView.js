@@ -66,8 +66,6 @@ export default class ParallaxTabsView extends React.Component {
 
   nScroll = new Animated.Value(0);
 
-  tabScroll = Animated.add(this.nScroll, this.offset);
-
   scroll = new Animated.Value(0);
 
   onNScroll = Animated.event(
@@ -254,7 +252,7 @@ export default class ParallaxTabsView extends React.Component {
   renderTabs() {
     const { Tabs: UserTabs, HeaderBottom, tabHeadings } = this.props;
     const { height } = this.state;
-    const tabY = this.tabScroll.interpolate({
+    const tabY = this.nScroll.interpolate({
       inputRange: [0, SCROLL_HEIGHT, height],
       outputRange: [3, 3, height - SCROLL_HEIGHT + 3],
     });
@@ -263,7 +261,13 @@ export default class ParallaxTabsView extends React.Component {
         prerenderingSiblingsNumber={UserTabs.length}
         onChangeTab={this.onChangeTab}
         renderTabBar={props => (
-          <TabBar tabY={tabY} tabBg={this.tabBg} textColor={this.textColor} {...props} />
+          <TabBar
+            size={UserTabs.length}
+            tabY={tabY}
+            tabBg={this.tabBg}
+            textColor={this.textColor}
+            {...props}
+          />
         )}
       >
         {UserTabs.map((UserTab, i) => {

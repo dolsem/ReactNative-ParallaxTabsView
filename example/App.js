@@ -16,6 +16,7 @@ export default class ParallaxTabsViewDemo extends React.Component {
 
   @bind
   onScrollPastThreshold(tabIndex) {
+    return;
     if (tabIndex === 0) {
       this.postersTabRef.current.loadMoreData();
     }
@@ -32,7 +33,7 @@ export default class ParallaxTabsViewDemo extends React.Component {
           headerImage={HEADER_IMAGE}
           tabHeadings={['Posters', 'Characters', 'Extra']}
           Tabs={[
-            props => <PostersTab ref={this.postersTabRef} {...props} />,
+            // props => <PostersTab ref={this.postersTabRef} {...props} />,
             props => <CharactersTab {...props} />,
             props => <ExtraTab {...props} />,
           ]}
@@ -47,7 +48,6 @@ export default class ParallaxTabsViewDemo extends React.Component {
           HeaderBottom={() => <Text style={styles.username}>Revaz Gabriadze</Text>}
           Subheader={Subheader}
           onScrollPastThreshold={this.onScrollPastThreshold}
-          misc1={[4]}
         />
       </Root>
     )
