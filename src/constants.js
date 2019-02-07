@@ -8,6 +8,6 @@ export const DEFAULT_IMAGE_HEIGHT = 250;
 export const Colors = {
   WHITE: 'white',
   TRANSPARENT: 'transparent',
-  THEME_COLOR: 'rgba(85,186,255, 1)',
+  PRIMARY_COLOR: 'rgba(85,186,255, 1)',
 }
 export const THEME_COLOR_OPACITY = 0.8;

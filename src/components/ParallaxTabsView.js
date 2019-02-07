@@ -1,11 +1,10 @@
 import React from 'react';
-import { Animated, View, Image, ImageBackground, StyleSheet } from 'react-native';
+import { Animated, View, Text, Image, ImageBackground, StyleSheet } from 'react-native';
 import { Header, Body, Tabs, Tab } from 'native-base';
 import { propTypes, defaultProps } from 'react-props-decorators';
 import { bind } from 'decko';
 
 import {
-  Colors, THEME_COLOR_OPACITY,
   DEFAULT_TAB_HEIGHT, DEFAULT_IMAGE_HEIGHT, DEFAULT_HEADER_HEIGHT,
   SCREEN_HEIGHT, SCREEN_WIDTH,
 } from '../constants';
@@ -61,6 +60,17 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   /** Optionally downscale header bottom to fit inside the header top bar as you scroll down */
   headerBottomDownscaleFactor: PropTypes.number,
 
+  /** Custom primary color */
+  primaryColor: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  /** Custom secondary color */
+  secondaryColor: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  /** Custom background color */
+  backgroundColor: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  /** Override tab heading text style */
+  tabHeadingTextStyle: PropTypes.oneOfType(null, Text.propTypes.style),
+  /** Override tab heading text opacity during scroll transition */
+  tabHeadingTextTransitionOpacity: PropTypes.number,
+
   /** Function to be called after scrolling past scrollThreshold */
   onScrollPastThreshold: PropTypes.func,
   /** Threshold value scrolling past which will call onScrollPastThreshold() */
@@ -76,6 +86,11 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   tabBarHeight: 100,
   headerBottomWidth: SCREEN_WIDTH,
   headerBottomDownscaleFactor: 1,
+  primaryColor: 'rgba(85,186,255, 1)',
+  secondaryColor: 'white',
+  backgroundColor: 'white',
+  tabHeadingTextStyle: null,
+  tabHeadingTextTransitionOpacity: 0.8,
   scrollThreshold: 0.5,
   scrollPastThresholdEventInterval: 1500,
 })
@@ -106,10 +121,10 @@ export default class ParallaxTabsView extends React.Component {
     super(props);
     const {
       Tabs,
-      headerHeight,
-      imageHeight,
-      scrollPastThresholdEventInterval,
-      scrollThreshold,
+      headerHeight, imageHeight,
+      scrollThreshold, scrollPastThresholdEventInterval,
+      primaryColor, secondaryColor,
+      tabHeadingTextTransitionOpacity,
     } = this.props;
 
     const scrollHeight = imageHeight - headerHeight;
@@ -134,23 +149,23 @@ export default class ParallaxTabsView extends React.Component {
       )
     );
 
-    this.textColor = this.scroll.interpolate({
+    this.tabHeadingTextColor = this.scroll.interpolate({
       inputRange: [0, scrollHeight / 5, scrollHeight],
       outputRange: [
-        Colors.THEME_COLOR,
-        withAlpha(Colors.THEME_COLOR, THEME_COLOR_OPACITY),
-        Colors.WHITE,
+        primaryColor,
+        withAlpha(primaryColor, tabHeadingTextTransitionOpacity),
+        secondaryColor,
       ],
       extrapolate: 'clamp',
     });
     this.tabBg = this.scroll.interpolate({
       inputRange: [0, scrollHeight],
-      outputRange: [Colors.WHITE, Colors.THEME_COLOR],
+      outputRange: [secondaryColor, primaryColor],
       extrapolate: 'clamp',
     });
     this.headerBg = this.scroll.interpolate({
       inputRange: [0, scrollHeight, scrollHeight + 1],
-      outputRange: [Colors.TRANSPARENT, Colors.TRANSPARENT, Colors.THEME_COLOR],
+      outputRange: ['transparent', 'transparent', primaryColor],
       extrapolate: 'clamp',
     });
     this.imgOpacity = this.nScroll.interpolate({
@@ -174,10 +189,15 @@ export default class ParallaxTabsView extends React.Component {
 
   @bind
   onChangeTab({ i }) {
-    this.setState({
-      height: Math.max(SCREEN_HEIGHT, this.heights[i]),
-      activeTab: i,
-    });
+    const { Tabs } = this.props;
+    if (i < 0 || i >= Tabs.length) return;
+    const { activeTab } = this.state;
+    if (activeTab !== i) {
+      this.setState({
+        height: Math.max(SCREEN_HEIGHT, this.heights[i]),
+        activeTab: i,
+      });
+    }
   }
 
   triggerScrolledPastThreshold(tabIndex) {
@@ -199,14 +219,14 @@ export default class ParallaxTabsView extends React.Component {
   }
 
   renderHeaderBody() {
-    const { headerImage, imageHeight: height, HeaderBody } = this.props;
+    const { headerImage, imageHeight: height, HeaderBody, primaryColor } = this.props;
     return (
       <Animated.View style={{
         transform: [
           { translateY: Animated.multiply(this.nScroll, 0.65) },
           { scale: this.imgScale },
         ],
-        backgroundColor: Colors.THEME_COLOR,
+        backgroundColor: primaryColor,
       }}
       >
         <AnimatedImage
@@ -286,6 +306,7 @@ export default class ParallaxTabsView extends React.Component {
     const {
       tabHeadings, headerHeight, imageHeight, tabBarHeight, subheaderHeight,
       Tabs: UserTabs, Subheader,
+      tabHeadingTextStyle,
     } = this.props;
     const { height } = this.state;
 
@@ -304,7 +325,8 @@ export default class ParallaxTabsView extends React.Component {
             height={tabBarHeight}
             tabY={tabY}
             tabBg={this.tabBg}
-            textColor={this.textColor}
+            textColor={this.tabHeadingTextColor}
+            tabHeadingTextStyle={tabHeadingTextStyle}
             {...props}
           />
         )}
@@ -327,15 +349,20 @@ export default class ParallaxTabsView extends React.Component {
   }
 
   render() {
+    const { backgroundColor, imageHeight } = this.props;
     return (
-      <View>
+      <View style={{ backgroundColor }}>
         <Animated.ScrollView
           scrollEventThrottle={5}
           showsVerticalScrollIndicator={false}
           onScroll={this.onNScroll}
-          style={styles.container}
         >
           {this.renderHeaderBody()}
+          <View style={[
+            styles.overscrollCover,
+            { top: imageHeight, height: imageHeight, backgroundColor },
+          ]}
+          />
           {this.renderTabs()}
           {this.renderSubheader()}
         </Animated.ScrollView>
@@ -347,20 +374,15 @@ export default class ParallaxTabsView extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    zIndex: 0,
-  },
   headerTopContainer: {
     position: 'absolute',
     width: '100%',
-    zIndex: 1,
   },
   headerTop: {
-    backgroundColor: Colors.TRANSPARENT,
+    backgroundColor: 'transparent',
   },
   headerBottom: {
     position: 'absolute',
-    zIndex: 2,
   },
   subheader: {
     position: 'absolute',
@@ -368,5 +390,9 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
+  },
+  overscrollCover: {
+    position: 'absolute',
+    width: SCREEN_WIDTH,
   },
 });
