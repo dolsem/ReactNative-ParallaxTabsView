@@ -2,7 +2,7 @@ import React from 'react';
 import { Animated, TouchableOpacity, YellowBox, StyleSheet } from 'react-native';
 import { ScrollableTab, TabHeading } from 'native-base';
 
-import { SCREEN_WIDTH, Colors } from '../constants';
+import { SCREEN_WIDTH, TRANSPARENT } from '../constants';
 
 YellowBox.ignoreWarnings([
   'Warning: Failed prop type: Invalid prop `backgroundColor` supplied to `ScrollableTabBar`: [object Object]',
@@ -10,15 +10,15 @@ YellowBox.ignoreWarnings([
 
 export default ({ size, height, tabY, tabBg, textColor, tabHeadingTextStyle, ...props }) => (
   <Animated.View style={[styles.container, { transform: [{ translateY: tabY }] }]}>
-    <ScrollableTab
-      renderTab={(name, page, active, onPress, onLayout) => (
-        <TouchableOpacity
-          key={page}
-          onPress={() => onPress(page)}
-          onLayout={onLayout}
-          activeOpacity={0.4}
-        >
-          <Animated.View style={[styles.headingContainer, { height, backgroundColor: tabBg }]}>
+    <Animated.View style={{ backgroundColor: tabBg }}>
+      <ScrollableTab
+        renderTab={(name, page, active, onPress, onLayout) => (
+          <TouchableOpacity
+            key={page}
+            onPress={() => onPress(page)}
+            onLayout={onLayout}
+            activeOpacity={0.4}
+          >
             <TabHeading
               scrollable
               style={[styles.heading, { minWidth: SCREEN_WIDTH / size }]}
@@ -33,12 +33,13 @@ export default ({ size, height, tabY, tabBg, textColor, tabHeadingTextStyle, ...
                 {name}
               </Animated.Text>
             </TabHeading>
-          </Animated.View>
-        </TouchableOpacity>
-      )}
-      underlineStyle={{ backgroundColor: textColor }}
-      {...props}
-    />
+          </TouchableOpacity>
+        )}
+        underlineStyle={{ backgroundColor: textColor }}
+        style={[styles.scrollableTab, { height }]}
+        {...props}
+      />
+    </Animated.View>
   </Animated.View>
 );
 
@@ -47,14 +48,15 @@ const styles = StyleSheet.create({
     zIndex: 1,
     width: '100%',
     top: -3,
+    backgroundColor: TRANSPARENT,
   },
-  headingContainer: {
-    flex: 1,
-    paddingTop: 3,
+  scrollableTab: {
+    backgroundColor: TRANSPARENT,
   },
   heading: {
-    backgroundColor: 'transparent',
+    backgroundColor: TRANSPARENT,
     flex: 1,
+    paddingTop: 3,
   },
   headingText: {
     fontSize: 14,

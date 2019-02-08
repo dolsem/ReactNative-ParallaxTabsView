@@ -5,7 +5,8 @@ import { propTypes, defaultProps } from 'react-props-decorators';
 import { bind } from 'decko';
 
 import {
-  DEFAULT_TAB_HEIGHT, DEFAULT_IMAGE_HEIGHT, DEFAULT_HEADER_HEIGHT,
+  PRIMARY_COLOR, WHITE, TRANSPARENT,
+  DEFAULT_TAB_HEIGHT, DEFAULT_HEADER_HEIGHT,
   SCREEN_HEIGHT, SCREEN_WIDTH,
 } from '../constants';
 
@@ -46,6 +47,8 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   headerImage: Image.propTypes.source,
   /** Custom tab headings */
   tabHeadings: PropTypes.arrayOf(PropTypes.string),
+  /** If set to true, TabBar is moved up to cover the bottom of the header image */
+  juxtaposeTabBar: PropTypes.bool,
 
   /** Custom header height */
   headerHeight: PropTypes.number,
@@ -55,6 +58,8 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   imageHeight: PropTypes.number,
   /** Custom tab bar height */
   tabBarHeight: PropTypes.number,
+  /** Custom HeaderBottom height */
+  headerBottomHeight: PropTypes.number,
   /** Custom HeaderBottom width */
   headerBottomWidth: PropTypes.number,
   /** Optionally downscale header bottom to fit inside the header top bar as you scroll down */
@@ -68,8 +73,12 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   backgroundColor: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   /** Override tab heading text style */
   tabHeadingTextStyle: PropTypes.oneOfType(null, Text.propTypes.style),
-  /** Override tab heading text opacity during scroll transition */
-  tabHeadingTextTransitionOpacity: PropTypes.number,
+  /** Override active tab heading text style */
+  activeTabHeadingTextStyle: PropTypes.oneOfType(null, Text.propTypes.style),
+  /** Override tab heading text and underline color interpolation range */
+  tabHeadingAccentColorRange: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  ),
 
   /** Function to be called after scrolling past scrollThreshold */
   onScrollPastThreshold: PropTypes.func,
@@ -80,15 +89,17 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
 })
 @defaultProps({
   tabHeadings: [],
+  juxtaposeTabBar: false,
   headerHeight: DEFAULT_HEADER_HEIGHT,
   subheaderHeight: 0,
-  imageHeight: DEFAULT_IMAGE_HEIGHT,
-  tabBarHeight: 100,
+  imageHeight: 250,
+  tabBarHeight: 50,
+  headerBottomHeight: 40,
   headerBottomWidth: SCREEN_WIDTH,
   headerBottomDownscaleFactor: 1,
-  primaryColor: 'rgba(85,186,255, 1)',
-  secondaryColor: 'white',
-  backgroundColor: 'white',
+  primaryColor: PRIMARY_COLOR,
+  secondaryColor: WHITE,
+  backgroundColor: WHITE,
   tabHeadingTextStyle: null,
   tabHeadingTextTransitionOpacity: 0.8,
   scrollThreshold: 0.5,
@@ -123,8 +134,7 @@ export default class ParallaxTabsView extends React.Component {
       Tabs,
       headerHeight, imageHeight,
       scrollThreshold, scrollPastThresholdEventInterval,
-      primaryColor, secondaryColor,
-      tabHeadingTextTransitionOpacity,
+      primaryColor, secondaryColor, tabHeadingAccentColorRange,
     } = this.props;
 
     const scrollHeight = imageHeight - headerHeight;
@@ -149,15 +159,26 @@ export default class ParallaxTabsView extends React.Component {
       )
     );
 
-    this.tabHeadingTextColor = this.scroll.interpolate({
-      inputRange: [0, scrollHeight / 5, scrollHeight],
-      outputRange: [
-        primaryColor,
-        withAlpha(primaryColor, tabHeadingTextTransitionOpacity),
-        secondaryColor,
-      ],
-      extrapolate: 'clamp',
-    });
+    if (!tabHeadingAccentColorRange) {
+      this.tabHeadingAccentColor = this.scroll.interpolate({
+        inputRange: [0, scrollHeight / 5, scrollHeight],
+        outputRange: [
+          primaryColor,
+          withAlpha(primaryColor, 0.8),
+          secondaryColor,
+        ],
+        extrapolate: 'clamp',
+      });
+    } else {
+      this.tabHeadingAccentColor = tabHeadingAccentColorRange.length === 3
+        ? this.scroll.interpolate(
+          {
+            inputRange: [0, scrollHeight / 5, scrollHeight],
+            outputRange: tabHeadingAccentColorRange,
+            extrapolate: 'clamp',
+          }
+        ) : tabHeadingAccentColorRange[0];
+    }
     this.tabBg = this.scroll.interpolate({
       inputRange: [0, scrollHeight],
       outputRange: [secondaryColor, primaryColor],
@@ -165,7 +186,7 @@ export default class ParallaxTabsView extends React.Component {
     });
     this.headerBg = this.scroll.interpolate({
       inputRange: [0, scrollHeight, scrollHeight + 1],
-      outputRange: ['transparent', 'transparent', primaryColor],
+      outputRange: [TRANSPARENT, TRANSPARENT, primaryColor],
       extrapolate: 'clamp',
     });
     this.imgOpacity = this.nScroll.interpolate({
@@ -241,12 +262,12 @@ export default class ParallaxTabsView extends React.Component {
 
   renderHeaderBottom() {
     const {
-      HeaderBottom, headerHeight, imageHeight, tabBarHeight, headerBottomWidth: width,
-      headerBottomDownscaleFactor,
+      headerBottomWidth: width, headerBottomHeight: height, headerHeight, imageHeight, tabBarHeight,
+      HeaderBottom, headerBottomDownscaleFactor, juxtaposeTabBar,
     } = this.props;
     if (!HeaderBottom) return null;
 
-    const top = imageHeight - (tabBarHeight / 2);
+    const top = imageHeight - height - (juxtaposeTabBar && tabBarHeight);
 
     const containerScale = headerBottomDownscaleFactor < 1 && this.nScroll.interpolate({
       inputRange: [headerHeight, top - 25],
@@ -274,24 +295,27 @@ export default class ParallaxTabsView extends React.Component {
     }
 
     return (
-      <Animated.View style={[styles.headerBottom, { width, top, transform }]}>
+      <Animated.View style={[styles.headerBottom, { width, height, top, transform }]}>
         <HeaderBottom />
       </Animated.View>
     );
   }
 
   renderSubheader() {
-    const { Subheader, headerHeight, imageHeight, subheaderHeight } = this.props;
+    const {
+      headerHeight, imageHeight, subheaderHeight, tabBarHeight,
+      Subheader, juxtaposeTabBar,
+    } = this.props;
     if (!Subheader) return null;
 
     const containerOpacity = this.nScroll.interpolate({
-      inputRange: [0, headerHeight + subheaderHeight],
+      inputRange: [0, headerHeight + subheaderHeight - (juxtaposeTabBar && tabBarHeight)],
       outputRange: [1, 0],
       extrapolate: 'clamp',
     });
 
     const style = {
-      top: imageHeight + headerHeight - 15,
+      top: imageHeight + (!juxtaposeTabBar && tabBarHeight),
       opacity: containerOpacity,
     }
 
@@ -304,52 +328,55 @@ export default class ParallaxTabsView extends React.Component {
 
   renderTabs() {
     const {
-      tabHeadings, headerHeight, imageHeight, tabBarHeight, subheaderHeight,
-      Tabs: UserTabs, Subheader,
-      tabHeadingTextStyle,
+      headerHeight, imageHeight, tabBarHeight, subheaderHeight, juxtaposeTabBar,
+      Tabs: UserTabs, Subheader, tabHeadings,
+      tabHeadingTextStyle, backgroundColor,
     } = this.props;
     const { height } = this.state;
 
-    const scrollHeight = imageHeight - headerHeight;
+    const scrollHeight = imageHeight - headerHeight - (juxtaposeTabBar && tabBarHeight);
     const tabY = this.nScroll.interpolate({
       inputRange: [0, scrollHeight, height + scrollHeight],
       outputRange: [3, 3, height + 3],
     });
+
     return (
-      <Tabs
-        prerenderingSiblingsNumber={UserTabs.length}
-        onChangeTab={this.onChangeTab}
-        renderTabBar={props => (
-          <TabBar
-            size={UserTabs.length}
-            height={tabBarHeight}
-            tabY={tabY}
-            tabBg={this.tabBg}
-            textColor={this.tabHeadingTextColor}
-            tabHeadingTextStyle={tabHeadingTextStyle}
-            {...props}
-          />
-        )}
-      >
-        {UserTabs.map((UserTab, i) => {
-          const heading = tabHeadings[i] || `Tab ${i + 1}`;
-          return (
-            <Tab key={heading} heading={heading}>
-              <View style={{ height }}>
-                {Subheader && <View style={{ height: subheaderHeight }} />}
-                <View onLayout={this.onTabLayout(i)}>
-                  <UserTab onLayoutChange={this.onTabLayout(i)} />
+      <View style={juxtaposeTabBar ? { top: -tabBarHeight } : undefined}>
+        <Tabs
+          prerenderingSiblingsNumber={UserTabs.length}
+          onChangeTab={this.onChangeTab}
+          renderTabBar={props => (
+            <TabBar
+              size={UserTabs.length}
+              height={tabBarHeight}
+              tabY={tabY}
+              tabBg={this.tabBg}
+              textColor={this.tabHeadingAccentColor}
+              tabHeadingTextStyle={tabHeadingTextStyle}
+              {...props}
+            />
+          )}
+        >
+          {UserTabs.map((UserTab, i) => {
+            const heading = tabHeadings[i] || `Tab ${i + 1}`;
+            return (
+              <Tab key={heading} heading={heading}>
+                <View style={{ height }}>
+                  {Subheader && <View style={{ height: subheaderHeight, backgroundColor }} />}
+                  <View onLayout={this.onTabLayout(i)}>
+                    <UserTab onLayoutChange={this.onTabLayout(i)} />
+                  </View>
                 </View>
-              </View>
-            </Tab>
-          );
-        })}
-      </Tabs>
+              </Tab>
+            );
+          })}
+        </Tabs>
+      </View>
     );
   }
 
   render() {
-    const { backgroundColor, imageHeight } = this.props;
+    const { backgroundColor, imageHeight, tabBarHeight } = this.props;
     return (
       <View style={{ backgroundColor }}>
         <Animated.ScrollView
@@ -360,7 +387,7 @@ export default class ParallaxTabsView extends React.Component {
           {this.renderHeaderBody()}
           <View style={[
             styles.overscrollCover,
-            { top: imageHeight, height: imageHeight, backgroundColor },
+            { top: imageHeight, height: imageHeight + tabBarHeight, backgroundColor },
           ]}
           />
           {this.renderTabs()}
@@ -379,7 +406,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   headerTop: {
-    backgroundColor: 'transparent',
+    backgroundColor: TRANSPARENT,
   },
   headerBottom: {
     position: 'absolute',
