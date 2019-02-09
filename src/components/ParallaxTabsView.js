@@ -72,9 +72,9 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   /** Custom background color */
   backgroundColor: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   /** Override tab heading text style */
-  tabHeadingTextStyle: PropTypes.oneOfType(null, Text.propTypes.style),
+  tabHeadingTextStyle: PropTypes.oneOfType([null, Text.propTypes.style]),
   /** Override active tab heading text style */
-  activeTabHeadingTextStyle: PropTypes.oneOfType(null, Text.propTypes.style),
+  activeTabHeadingTextStyle: PropTypes.oneOfType([null, Text.propTypes.style]),
   /** Override tab heading text and underline color interpolation range */
   tabHeadingAccentColorRange: PropTypes.arrayOf(
     PropTypes.oneOfType([PropTypes.string, PropTypes.number])
@@ -330,7 +330,7 @@ export default class ParallaxTabsView extends React.Component {
     const {
       headerHeight, imageHeight, tabBarHeight, subheaderHeight, juxtaposeTabBar,
       Tabs: UserTabs, Subheader, tabHeadings,
-      tabHeadingTextStyle, backgroundColor,
+      tabHeadingTextStyle, activeTabHeadingTextStyle, backgroundColor,
     } = this.props;
     const { height } = this.state;
 
@@ -353,6 +353,7 @@ export default class ParallaxTabsView extends React.Component {
               tabBg={this.tabBg}
               textColor={this.tabHeadingAccentColor}
               tabHeadingTextStyle={tabHeadingTextStyle}
+              activeTabHeadingTextStyle={activeTabHeadingTextStyle}
               {...props}
             />
           )}
@@ -361,8 +362,8 @@ export default class ParallaxTabsView extends React.Component {
             const heading = tabHeadings[i] || `Tab ${i + 1}`;
             return (
               <Tab key={heading} heading={heading}>
-                <View style={{ height }}>
-                  {Subheader && <View style={{ height: subheaderHeight, backgroundColor }} />}
+                <View style={{ height, backgroundColor }}>
+                  {Subheader && <View style={{ height: subheaderHeight }} />}
                   <View onLayout={this.onTabLayout(i)}>
                     <UserTab onLayoutChange={this.onTabLayout(i)} />
                   </View>
