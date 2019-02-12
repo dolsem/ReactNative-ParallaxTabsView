@@ -1,13 +1,12 @@
 import React from 'react';
 import { Animated, View, Text, Image, ImageBackground, StyleSheet } from 'react-native';
-import { Header, Body, Tabs, Tab } from 'native-base';
+import { Tabs, Tab } from 'native-base';
 import { propTypes, defaultProps } from 'react-props-decorators';
 import { bind } from 'decko';
 
 import {
+  STATUSBAR_OFFSET, DEFAULT_HEADER_HEIGHT, SCREEN_HEIGHT, SCREEN_WIDTH, TAB_HEADING_OFFSET,
   PRIMARY_COLOR, WHITE, TRANSPARENT,
-  DEFAULT_TAB_HEIGHT, DEFAULT_HEADER_HEIGHT,
-  SCREEN_HEIGHT, SCREEN_WIDTH,
 } from '../constants';
 
 import { debounce, withAlpha, PropTypes } from '../utils';
@@ -64,6 +63,10 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   headerBottomWidth: PropTypes.number,
   /** Optionally downscale header bottom to fit inside the header top bar as you scroll down */
   headerBottomDownscaleFactor: PropTypes.number,
+  /** Custom status bar offset */
+  statusBarOffset: PropTypes.number,
+  /** Custom tab heading offset */
+  tabHeadingOffset: PropTypes.number,
 
   /** Custom primary color */
   primaryColor: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -72,9 +75,9 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   /** Custom background color */
   backgroundColor: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   /** Override tab heading text style */
-  tabHeadingTextStyle: PropTypes.oneOfType([null, Text.propTypes.style]),
+  tabHeadingTextStyle: Text.propTypes.style,
   /** Override active tab heading text style */
-  activeTabHeadingTextStyle: PropTypes.oneOfType([null, Text.propTypes.style]),
+  activeTabHeadingTextStyle: Text.propTypes.style,
   /** Override tab heading text and underline color interpolation range */
   tabHeadingAccentColorRange: PropTypes.arrayOf(
     PropTypes.oneOfType([PropTypes.string, PropTypes.number])
@@ -96,6 +99,8 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   tabBarHeight: 50,
   headerBottomHeight: 40,
   headerBottomWidth: SCREEN_WIDTH,
+  statusBarOffset: STATUSBAR_OFFSET,
+  tabHeadingOffset: TAB_HEADING_OFFSET,
   headerBottomDownscaleFactor: 1,
   primaryColor: PRIMARY_COLOR,
   secondaryColor: WHITE,
@@ -108,7 +113,7 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
 export default class ParallaxTabsView extends React.Component {
   state = {
     activeTab: 0,
-    height: DEFAULT_TAB_HEIGHT,
+    height: SCREEN_HEIGHT,
   };
 
   offset = new Animated.Value(0);
@@ -138,7 +143,7 @@ export default class ParallaxTabsView extends React.Component {
     } = this.props;
 
     const scrollHeight = imageHeight - headerHeight;
-    this.heights = Tabs.map(() => DEFAULT_TAB_HEIGHT);
+    this.heights = Tabs.map(() => SCREEN_HEIGHT);
 
     this.triggerScrolledPastThreshold = debounce(
       this.triggerScrolledPastThreshold,
@@ -227,14 +232,15 @@ export default class ParallaxTabsView extends React.Component {
   }
 
   renderHeaderTop() {
-    const { HeaderTop } = this.props;
+    const { HeaderTop, headerHeight, statusBarOffset } = this.props;
     return (
-      <Animated.View style={[styles.headerTopContainer, { backgroundColor: this.headerBg }]}>
-        <Header style={styles.headerTop} hasTabs>
-          <Body>
-            <HeaderTop />
-          </Body>
-        </Header>
+      <Animated.View style={[
+        styles.headerTopContainer,
+        { height: headerHeight, backgroundColor: this.headerBg },
+      ]}
+      >
+        <View style={{ height: statusBarOffset }} />
+        <HeaderTop scroll={this.scroll} nScroll={this.nScroll} />
       </Animated.View>
     );
   }
@@ -254,7 +260,7 @@ export default class ParallaxTabsView extends React.Component {
           source={headerImage}
           style={[styles.image, { height, opacity: this.imgOpacity }]}
         >
-          {HeaderBody && <HeaderBody />}
+          {HeaderBody && <HeaderBody scroll={this.scroll} nScroll={this.nScroll} />}
         </AnimatedImage>
       </Animated.View>
     );
@@ -263,25 +269,26 @@ export default class ParallaxTabsView extends React.Component {
   renderHeaderBottom() {
     const {
       headerBottomWidth: width, headerBottomHeight: height, headerHeight, imageHeight, tabBarHeight,
-      HeaderBottom, headerBottomDownscaleFactor, juxtaposeTabBar,
+      HeaderBottom, statusBarOffset, headerBottomDownscaleFactor, juxtaposeTabBar,
     } = this.props;
     if (!HeaderBottom) return null;
 
     const top = imageHeight - height - (juxtaposeTabBar && tabBarHeight);
+    const scrollHeight = top - statusBarOffset - (headerHeight - height) / 2;
 
     const containerScale = headerBottomDownscaleFactor < 1 && this.nScroll.interpolate({
-      inputRange: [headerHeight, top - 25],
+      inputRange: [top - headerHeight - height, imageHeight - headerHeight],
       outputRange: [1, headerBottomDownscaleFactor],
       extrapolate: 'clamp',
     });
-    const translateX = width < SCREEN_WIDTH && this.nScroll.interpolate({
-      inputRange: [headerHeight, top - 20],
+    const translateX = width && width < SCREEN_WIDTH && this.nScroll.interpolate({
+      inputRange: [top - headerHeight - height, imageHeight - headerHeight],
       outputRange: [0, (SCREEN_WIDTH - width) / 2],
       extrapolate: 'clamp',
     });
     const translateY = this.nScroll.interpolate({
-      inputRange: [-DEFAULT_TAB_HEIGHT, 0, top - 21],
-      outputRange: [300, 0, -top + 21],
+      inputRange: [-SCREEN_HEIGHT, 0, scrollHeight],
+      outputRange: [0.7 * SCREEN_HEIGHT, 0, -scrollHeight],
       extrapolate: 'clamp',
     });
 
@@ -295,8 +302,12 @@ export default class ParallaxTabsView extends React.Component {
     }
 
     return (
-      <Animated.View style={[styles.headerBottom, { width, height, top, transform }]}>
-        <HeaderBottom />
+      <Animated.View style={[
+        styles.headerBottom,
+        { ...(width && { width }), height, top, transform },
+      ]}
+      >
+        <HeaderBottom scroll={this.scroll} nScroll={this.nScroll} />
       </Animated.View>
     );
   }
@@ -321,14 +332,14 @@ export default class ParallaxTabsView extends React.Component {
 
     return (
       <Animated.View style={[styles.subheader, style]}>
-        <Subheader />
+        <Subheader scroll={this.scroll} nScroll={this.nScroll} />
       </Animated.View>
     );
   }
 
   renderTabs() {
     const {
-      headerHeight, imageHeight, tabBarHeight, subheaderHeight, juxtaposeTabBar,
+      headerHeight, imageHeight, tabBarHeight, subheaderHeight, juxtaposeTabBar, tabHeadingOffset,
       Tabs: UserTabs, Subheader, tabHeadings,
       tabHeadingTextStyle, activeTabHeadingTextStyle, backgroundColor,
     } = this.props;
@@ -336,8 +347,8 @@ export default class ParallaxTabsView extends React.Component {
 
     const scrollHeight = imageHeight - headerHeight - (juxtaposeTabBar && tabBarHeight);
     const tabY = this.nScroll.interpolate({
-      inputRange: [0, scrollHeight, height + scrollHeight],
-      outputRange: [3, 3, height + 3],
+      inputRange: [0, scrollHeight, scrollHeight + 1],
+      outputRange: [0, 0, 1],
     });
 
     return (
@@ -350,6 +361,7 @@ export default class ParallaxTabsView extends React.Component {
               size={UserTabs.length}
               height={tabBarHeight}
               tabY={tabY}
+              tabHeadingOffset={tabHeadingOffset}
               tabBg={this.tabBg}
               textColor={this.tabHeadingAccentColor}
               tabHeadingTextStyle={tabHeadingTextStyle}
@@ -406,11 +418,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
   },
-  headerTop: {
-    backgroundColor: TRANSPARENT,
-  },
   headerBottom: {
     position: 'absolute',
+    justifyContent: 'center',
   },
   subheader: {
     position: 'absolute',

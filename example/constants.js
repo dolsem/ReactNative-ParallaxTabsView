@@ -4,7 +4,7 @@ export const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('wi
 export const SUBHEADER_HEIGHT = 130;
 export const ELEVATION = 24;
 export const POSTER_HEIGHT = 370;
-export const ICON_SIZE = 40;
+export const ICON_SIZE = 35;
 
 export const Colors = {
   THEME_COLOR: 'rgba(85,186,255, 1)',

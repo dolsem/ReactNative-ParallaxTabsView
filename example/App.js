@@ -48,11 +48,11 @@ export default class ParallaxTabsViewDemo extends React.Component {
           Subheader={Subheader}
           imageHeight={300}
           subheaderHeight={SUBHEADER_HEIGHT}
+          // headerHeight={5}
           headerBottomWidth={250}
+          headerBottomHeight={50}
           headerBottomDownscaleFactor={0.65}
           onScrollPastThreshold={this.onScrollPastThreshold}
-          // tabHeadingAccentColorRange={['red', 'red', 'yellow']}
-          // secondaryColor="rgba(0, 0, 0, 0.5)"
         />
       </Root>
     )

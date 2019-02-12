@@ -9,7 +9,7 @@ YellowBox.ignoreWarnings([
 ]);
 
 export default ({
-  size, height, tabY,
+  size, height, tabY, tabHeadingOffset = 0,
   tabBg, textColor, tabHeadingTextStyle, activeTabHeadingTextStyle, ...props
 }) => (
   <Animated.View style={[styles.container, { transform: [{ translateY: tabY }] }]}>
@@ -29,10 +29,10 @@ export default ({
             >
               <Animated.Text style={active
                 ? [styles.headingTextActive,
-                  { color: textColor },
+                  { color: textColor, top: tabHeadingOffset },
                   activeTabHeadingTextStyle]
                 : [styles.headingText,
-                  { color: textColor },
+                  { color: textColor, top: tabHeadingOffset },
                   tabHeadingTextStyle]}
               >
                 {name}
@@ -52,7 +52,6 @@ const styles = StyleSheet.create({
   container: {
     zIndex: 1,
     width: '100%',
-    top: -3,
     backgroundColor: TRANSPARENT,
   },
   scrollableTab: {
@@ -61,7 +60,6 @@ const styles = StyleSheet.create({
   heading: {
     backgroundColor: TRANSPARENT,
     flex: 1,
-    paddingTop: 3,
   },
   headingText: {
     fontSize: 14,

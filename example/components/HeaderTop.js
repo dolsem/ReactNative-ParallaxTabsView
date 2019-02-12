@@ -14,7 +14,7 @@ export default () => (
         color="white"
       />
     </TouchableOpacity>
-    <TouchableOpacity onPress={() => ActionSheet.show(MENU, ix => ix !== 4 && alert('Must watch!'))}>
+    <TouchableOpacity onPress={() => ActionSheet.show(MENU, ix => ix !== MENU.cancelButtonIndex && alert('Must watch!'))}>
       <Entypo
         name="dots-three-horizontal"
         size={ICON_SIZE}
@@ -28,6 +28,9 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     width: '95%',
+    height: '100%',
+    alignSelf: 'center',
   },
 });
