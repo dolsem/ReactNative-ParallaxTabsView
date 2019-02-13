@@ -200,6 +200,15 @@ export default class ParallaxTabsView extends React.Component {
     });
   }
 
+  componentDidMount() {
+    const { onScroll } = this.props;
+    if (onScroll) this.onScrollListener = this.nScroll.addListener(onScroll);
+  }
+
+  componentWillUnmount() {
+    if (this.onScrollListener) this.nScroll.removeListener(this.onScrollListener)
+  }
+
   onTabLayout = i => (heightOrEvent) => {
     const { activeTab } = this.state;
     const { subheaderHeight } = this.props;
