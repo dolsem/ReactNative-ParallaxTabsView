@@ -144,6 +144,7 @@ export default class ParallaxTabsView extends React.Component {
 
     const scrollHeight = imageHeight - headerHeight;
     this.heights = Tabs.map(() => SCREEN_HEIGHT);
+    this.tabContainerRefs = Tabs.map(() => React.createRef());
 
     this.triggerScrolledPastThreshold = debounce(
       this.triggerScrolledPastThreshold,
@@ -156,8 +157,8 @@ export default class ParallaxTabsView extends React.Component {
         {
           useNativeDriver: false,
           listener: ({ value }) => {
-            const { height, activeTab } = this.state;
-            const ratio = value / height;
+            const { activeTab } = this.state;
+            const ratio = value / this.heights[activeTab];
             if (ratio > scrollThreshold) this.triggerScrolledPastThreshold(activeTab);
           },
         }
@@ -214,7 +215,7 @@ export default class ParallaxTabsView extends React.Component {
     if (this.onScrollListener) this.nScroll.removeListener(this.onScrollListener)
   }
 
-  onTabLayout = i => (heightOrEvent) => {
+  onTabLayout(i, heightOrEvent) {
     const { activeTab } = this.state;
     const { subheaderHeight } = this.props;
     const height = (typeof heightOrEvent === 'number'
@@ -223,7 +224,14 @@ export default class ParallaxTabsView extends React.Component {
     ) + subheaderHeight;
     if (this.heights[i] !== height) {
       this.heights[i] = height;
-      if (activeTab === i) this.setState({ height });
+      if (activeTab === i) {
+        const { current: tabContainer } = this.tabContainerRefs[i];
+        if (tabContainer) {
+          tabContainer.setNativeProps({
+            style: { height },
+          })
+        }
+      }
     }
   }
 
@@ -388,10 +396,10 @@ export default class ParallaxTabsView extends React.Component {
             const heading = tabHeadings[i] || `Tab ${i + 1}`;
             return (
               <Tab key={heading} heading={heading}>
-                <View style={{ height, backgroundColor }}>
+                <View ref={this.tabContainerRefs[i]} style={{ height, backgroundColor }}>
                   {Subheader && <View style={{ height: subheaderHeight }} />}
-                  <View onLayout={this.onTabLayout(i)}>
-                    <UserTab onLayoutChange={this.onTabLayout(i)} />
+                  <View onLayout={this.onTabLayout.bind(this, i)}>
+                    <UserTab />
                   </View>
                 </View>
               </Tab>
