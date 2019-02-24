@@ -13,7 +13,7 @@ export default class PostersTab extends React.PureComponent {
   getMorePosters() {
     const { data = [] } = this.state || {};
     posters.forEach((uri, index) => data.push({ key: `${data.length + index}-${uri}`, uri }));
-    console.log(`Posters loaded: ${data.length}`);
+    console.log(data.length);
     return data;
   }
 
@@ -36,6 +36,7 @@ export default class PostersTab extends React.PureComponent {
     return (
       <FlatList
         style={styles.list}
+        onContentSizeChange={() => null}
         data={data}
         renderItem={this.renderItem}
         keyExtractor={item => item.key}
