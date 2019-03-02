@@ -32,9 +32,9 @@ export default class ParallaxTabsViewDemo extends React.Component {
           headerImage={HEADER_IMAGE}
           tabHeadings={['Posters', 'Characters', 'Extra']}
           Tabs={[
-            props => <PostersTab ref={this.postersTabRef} {...props} />,
-            props => <CharactersTab {...props} />,
-            props => <ExtraTab {...props} />,
+            <PostersTab ref={this.postersTabRef} />,
+            <CharactersTab />,
+            <ExtraTab />,
           ]}
           HeaderTop={HeaderTop}
           HeaderBody={() => (

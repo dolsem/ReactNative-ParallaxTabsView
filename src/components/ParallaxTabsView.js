@@ -30,7 +30,7 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
  */
 @propTypes({
   /** Array of components to be rendered inside of each tab. */
-  Tabs: PropTypes.arrayOf(PropTypes.component).isRequired,
+  Tabs: PropTypes.arrayOf(PropTypes.node).isRequired,
   /** Component to be rendered inside of the header bar (top of the header). */
   HeaderTop: PropTypes.component.isRequired,
   /** Optional component to be rendered on top of the header image. */
@@ -319,7 +319,9 @@ export default class ParallaxTabsView extends React.Component {
       transform.push({ translateX });
     }
     if (containerScale) {
-      transform.push({ scaleX: containerScale });
+      // There seems to be an issue with RN when an x-axis transform is set;
+      // incorrect value of width gets reported to the onLayout callback.
+      if (width) transform.push({ scaleX: containerScale });
       transform.push({ scaleY: containerScale });
     }
 
@@ -399,7 +401,7 @@ export default class ParallaxTabsView extends React.Component {
                 <View ref={this.tabContainerRefs[i]} style={{ height, backgroundColor }}>
                   {Subheader && <View style={{ height: subheaderHeight }} />}
                   <View onLayout={this.onTabLayout.bind(this, i)}>
-                    <UserTab />
+                    {UserTab}
                   </View>
                 </View>
               </Tab>
