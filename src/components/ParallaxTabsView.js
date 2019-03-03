@@ -42,6 +42,9 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
    *  that disappears as you scroll down. */
   Subheader: PropTypes.component,
 
+  /** Index of tab set to active when component first renders */
+  initialTab: PropTypes.number,
+
   /** Source prop for the header image */
   headerImage: Image.propTypes.source,
   /** Custom tab headings */
@@ -91,6 +94,7 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   scrollPastThresholdEventInterval: PropTypes.number,
 })
 @defaultProps({
+  initialTab: 0,
   tabHeadings: [],
   juxtaposeTabBar: false,
   headerHeight: DEFAULT_HEADER_HEIGHT,
@@ -145,6 +149,7 @@ export default class ParallaxTabsView extends React.Component {
     const scrollHeight = imageHeight - headerHeight;
     this.heights = Tabs.map(() => SCREEN_HEIGHT);
     this.tabContainerRefs = Tabs.map(() => React.createRef());
+    this.tabsRef = React.createRef();
 
     this.triggerScrolledPastThreshold = debounce(
       this.triggerScrolledPastThreshold,
@@ -202,12 +207,16 @@ export default class ParallaxTabsView extends React.Component {
   }
 
   componentDidMount() {
-    const { onScroll } = this.props;
+    const { onScroll, initialTab } = this.props;
     if (onScroll) {
       this.onScrollListener = this.nScroll.addListener((data) => {
         const { activeTab } = this.state;
         return onScroll({ ...data, tab: activeTab });
       });
+    }
+    if (initialTab !== 0) {
+      const { current: tabs } = this.tabsRef;
+      tabs.goToPage(initialTab);
     }
   }
 
@@ -378,6 +387,7 @@ export default class ParallaxTabsView extends React.Component {
     return (
       <View style={juxtaposeTabBar ? { top: -tabBarHeight } : undefined}>
         <Tabs
+          ref={this.tabsRef}
           prerenderingSiblingsNumber={UserTabs.length}
           onChangeTab={this.onChangeTab}
           renderTabBar={props => (
