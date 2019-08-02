@@ -217,7 +217,7 @@ export default class ParallaxTabsView extends React.Component {
     }
     if (initialTab !== 0) {
       const { current: tabs } = this.tabsRef;
-      tabs.goToPage(initialTab);
+      setTimeout(tabs.goToPage.bind(tabs, initialTab), 1);
     }
   }
 
