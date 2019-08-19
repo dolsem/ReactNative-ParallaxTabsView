@@ -94,6 +94,9 @@ import TabBar from './TabBar';
   scrollThreshold: PropTypes.number,
   /** Custom interval duration for calling onScrollPastThreshold() */
   scrollPastThresholdEventInterval: PropTypes.number,
+
+  /** Custom props for the parent scrollview */
+  scrollviewProps: PropTypes.object,
 })
 @defaultProps({
   initialTab: 0,
@@ -432,13 +435,14 @@ export default class ParallaxTabsView extends React.Component {
   }
 
   render() {
-    const { backgroundColor, imageHeight, tabBarHeight } = this.props;
+    const { backgroundColor, imageHeight, tabBarHeight, scrollviewProps } = this.props;
     return (
       <View style={{ backgroundColor }}>
         <Animated.ScrollView
           scrollEventThrottle={5}
           showsVerticalScrollIndicator={false}
           onScroll={this.onNScroll}
+          {...scrollviewProps}
         >
           {this.renderHeaderBody()}
           <View style={[
