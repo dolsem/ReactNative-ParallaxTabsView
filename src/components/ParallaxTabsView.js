@@ -5,7 +5,7 @@ import { propTypes, defaultProps } from 'react-props-decorators';
 import { bind } from 'decko';
 
 import {
-  STATUSBAR_OFFSET, DEFAULT_HEADER_HEIGHT, SCREEN_HEIGHT, SCREEN_WIDTH, TAB_HEADING_OFFSET,
+  STATUSBAR_OFFSET, DEFAULT_HEADER_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, TAB_HEADING_OFFSET,
   PRIMARY_COLOR, WHITE, TRANSPARENT,
 } from '../constants';
 
@@ -52,6 +52,8 @@ import TabBar from './TabBar';
   /** If set to true, TabBar is moved up to cover the bottom of the header image */
   juxtaposeTabBar: PropTypes.bool,
 
+  /** Minimum height of each tab */
+  minTabHeight: PropTypes.number,
   /** Custom header height */
   headerHeight: PropTypes.number,
   /** Subheader height (required for subheader to be displayed) */
@@ -98,6 +100,7 @@ import TabBar from './TabBar';
   tabHeadings: [],
   juxtaposeTabBar: false,
   HeaderImageComponent: Animated.createAnimatedComponent(ImageBackground),
+  minTabHeight: SCREEN_HEIGHT,
   headerHeight: DEFAULT_HEADER_HEIGHT,
   subheaderHeight: 0,
   imageHeight: 250,
@@ -116,11 +119,6 @@ import TabBar from './TabBar';
   scrollPastThresholdEventInterval: 1500,
 })
 export default class ParallaxTabsView extends React.Component {
-  state = {
-    activeTab: 0,
-    height: SCREEN_HEIGHT,
-  };
-
   offset = new Animated.Value(0);
 
   nScroll = new Animated.Value(0);
@@ -140,15 +138,17 @@ export default class ParallaxTabsView extends React.Component {
 
   constructor(props) {
     super(props);
+
     const {
       Tabs,
-      headerHeight, imageHeight,
+      headerHeight, imageHeight, minTabHeight,
       scrollThreshold, scrollPastThresholdEventInterval,
       primaryColor, secondaryColor, tabHeadingAccentColorRange,
     } = this.props;
 
     const scrollHeight = imageHeight - headerHeight;
-    this.heights = Tabs.map(() => SCREEN_HEIGHT);
+    this.minTabHeight = minTabHeight;
+    this.heights = Tabs.map(() => minTabHeight);
     this.tabContainerRefs = Tabs.map(() => React.createRef());
     this.tabsRef = React.createRef();
 
@@ -205,6 +205,11 @@ export default class ParallaxTabsView extends React.Component {
       inputRange: [0, scrollHeight],
       outputRange: [1, 0],
     });
+
+    this.state = {
+      activeTab: 0,
+      height: minTabHeight,
+    };
   }
 
   componentDidMount() {
@@ -252,7 +257,7 @@ export default class ParallaxTabsView extends React.Component {
     const { activeTab } = this.state;
     if (activeTab !== i) {
       this.setState({
-        height: Math.max(SCREEN_HEIGHT, this.heights[i]),
+        height: Math.max(this.minTabHeight, this.heights[i]),
         activeTab: i,
       });
     }
