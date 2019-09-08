@@ -12,8 +12,6 @@ import {
 import { debounce, withAlpha, PropTypes } from '../utils';
 import TabBar from './TabBar';
 
-const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
-
 /**
  * Screen view with tabs and a parallax image header that collapses to a bar as you scroll down.
  * Designed to work with scrollviews inside tabs.
@@ -33,6 +31,8 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   Tabs: PropTypes.arrayOf(PropTypes.node).isRequired,
   /** Component to be rendered inside of the header bar (top of the header). */
   HeaderTop: PropTypes.component.isRequired,
+  /** Component that displays header image. */
+  HeaderImageComponent: PropTypes.component,
   /** Optional component to be rendered on top of the header image. */
   HeaderBody: PropTypes.component,
   /** Optional component to be rendered at the bottom of the header
@@ -97,6 +97,7 @@ const AnimatedImage = Animated.createAnimatedComponent(ImageBackground);
   initialTab: 0,
   tabHeadings: [],
   juxtaposeTabBar: false,
+  HeaderImageComponent: Animated.createAnimatedComponent(ImageBackground),
   headerHeight: DEFAULT_HEADER_HEIGHT,
   subheaderHeight: 0,
   imageHeight: 250,
@@ -277,7 +278,10 @@ export default class ParallaxTabsView extends React.Component {
   }
 
   renderHeaderBody() {
-    const { headerImage, imageHeight: height, HeaderBody, primaryColor } = this.props;
+    const {
+      HeaderImageComponent, HeaderBody,
+      headerImage, imageHeight: height, primaryColor,
+    } = this.props;
     return (
       <Animated.View style={{
         transform: [
@@ -287,12 +291,12 @@ export default class ParallaxTabsView extends React.Component {
         backgroundColor: primaryColor,
       }}
       >
-        <AnimatedImage
+        <HeaderImageComponent
           source={headerImage}
           style={[styles.image, { height, opacity: this.imgOpacity }]}
         >
           {HeaderBody && <HeaderBody scroll={this.scroll} nScroll={this.nScroll} />}
-        </AnimatedImage>
+        </HeaderImageComponent>
       </Animated.View>
     );
   }
